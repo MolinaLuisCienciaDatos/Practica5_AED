@@ -203,7 +203,7 @@ reglasigma <- function(x,...){
   SD <- sd(x,...)
   mu = mean(x,...)
   out <- x[ abs(x-mu) > 3*SD]
-  out <- !is.na(x)
+  out <- out[!is.na(x)]
   return(out)
 }
 
@@ -212,7 +212,7 @@ reglahampel <- function(x,...){
   MADM <- madm(x,...)
   med <- median(x,...)
   out <- x[ abs(x-med) > 3*MADM]
-  out <- !is.na(x)
+  out <- out[!is.na(x)]
   return(out)
 }
 
@@ -222,7 +222,7 @@ reglaboxplot <- function(x,...){
     q1 <-quantile(x,0.25,...)
       q3<-quantile(x,0.75,...)
   out <- x[ x < q1-1.5*IQR | x>q3+1.5*IQR ]
-  out <- !is.na(x)
+  out <- out[!is.na(x)]
   return(out)
 }
 
@@ -231,7 +231,7 @@ reglapercentiles <- function(x,...){
       q5 <-quantile(x,0.05,...)
       q95<-quantile(x,0.95,...)
   out <- x[ x < q5| x>q95 ]
-  out <- !is.na(x)
+  out <- out[!is.na(x)]
   return(out)
 }
 ```
@@ -243,15 +243,25 @@ Utiliza la función `mutate` y `across` para identificar los outliers en la vari
 Nota: podría extenderse la aplicación a todas las variables numéricas usando también `mutate`, `across` y `where`. 
 
 ```{r Solucion ejercicio 6, include=TRUE, echo=TRUE, eval=TRUE, results=TRUE}
-
+detecta_outlier <- function(x,...){
+  out_s <- reglasigma(x,...)  
+  out_h <- reglahampel(x,...)
+  out_b <- reglaboxplot(x,...)  
+  out_p <- reglapercentiles(x,...)
+  Outliers <- data.frame(X=x)
+  Outliers$Sigma  <- x%in%out_s
+  Outliers$Hampel <- x%in%out_h
+  Outliers$Boxplot <- x%in%out_b
+  Outliers$Percentil <- x%in%out_p
+  Outliers
+}
 outliers_Petal_Length <- dirty_iris %>%
-  mutate(across(Petal.Length,
-                .fns = list(reglasigma,reglahampel,reglaboxplot,reglapercentiles),
-                .names ="{.fn}",
-                na.rm=T)) %>%
-    select(Petal.Length,6,7,8,9) %>%
-  rename(Out_Sigma = 2,Out_Hampel =3,OutBoxPlot=4,OutPercentil = 5)
+  mutate( across(Petal.Length,
+                .fns = detecta_outlier,
+                na.rm=T))%>%
+    select(Petal.Length) 
 
+print(outliers_Petal_Length)
 ```
 
 ## Ejercicio 7: Comparativa de los métodos de detección de outliers
@@ -262,8 +272,12 @@ En los métodos de detección de outliers analizados, examina los resultados com
   * Los valores etiquetados como outliers (ordenados de menor a mayor).
 
 ```{r Solucion ejercicio 7, include=TRUE, echo=TRUE, eval=TRUE, results=TRUE}
+outlier_metodo<- outliers_Petal_Length$Petal.Length %>% 
+  summarise(across(,sum))
 
+print(outlier_metodo)
 ```
+Tenemos un número parecido de outliers en función del método utilizado.
 
 ## Ejercicio 8: Representación gráfica
 
