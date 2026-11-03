@@ -104,18 +104,27 @@ Nota: Puedes reemplazar los valores para cada variable del dataframe usando `mut
 
 ```{r Solucion ejercicio 2, include=TRUE, echo=TRUE, eval=TRUE, results=TRUE}
 # DEBEMOS ELIMINAR TAMBIEN LOS VALROES IGUALES A CERO YA QUE SE TRATA DE LONGITUDES DE PARTES DE UNA FLOR. NO PUEDEN SER O
-
-
+dirty_iris <- dirty_iris %>% 
+  mutate(Sepal.Length = ifelse( is.finite(Sepal.Length) & Sepal.Length>0,Sepal.Length,NA)) %>%
+  mutate(Sepal.Width = ifelse(is.finite(Sepal.Width) &Sepal.Width>0,Sepal.Width,NA)) %>%
+  mutate(Petal.Length = ifelse( is.finite(Petal.Length) & Petal.Length>0,Petal.Length,NA)) %>%
+  mutate(Petal.Width = ifelse(is.finite(Petal.Width) &Petal.Width>0,Petal.Width,NA))   
 ```
 
 
 ## Ejercicio 3: Valores perdidos y observaciones completas
 
-  * Calcula el número y porcentaje de observaciones completas (muestras sin ningún dato perdido) empleando `complete.cases` (detecta todos los registros sin datos faltantes).
-  * Emplea después la función `na.omit` para quedarnos solo con las filas con datos completos en un nuevo data frame `clean_iris`.
+
+```{r}
+complete_iris <- dirty_iris %>% complete.cases()
+complete_perctg <- sum(complete_iris)/length(complete_iris)
+``` 
+En el dataframe tenemos un total de `r  length(complete_iris)` muestras completas, lo que supone un `r 100*complete_perctg` % de casos completos en el data frame original.
+
+Usamos la función `na.omit` para quedarnos solo con las filas con datos completos en un nuevo data frame `clean_iris`.
 
 ```{r Solucion ejercicio 3, include=TRUE, echo=TRUE, eval=TRUE, results=TRUE}
-
+clean_iris <- dirty_iris %>% na.omit()
 ```
 
 # Detección de outliers univariante
