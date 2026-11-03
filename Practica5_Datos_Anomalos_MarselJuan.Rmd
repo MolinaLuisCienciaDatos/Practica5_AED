@@ -145,9 +145,45 @@ Hazlo para el data frame con observaciones completas `clean_iris` (que no tiene 
   * Compara los resultados para los dos conjuntos en la variable `Petal.Length`.
 
 ```{r , include = TRUE}
+madm <- function(x,...){
+  x <- 1.4826*median(abs(x-median(x,...)),...)
+  x
+}
 
+iqr <- function(x,...){
+  iqr <- quantile(x,0.75,...)-quantile(x,0.25,...)
+  iqr
+}
+
+summary_clean <- clean_iris %>%
+  select(-Species)%>%
+  summarise(across(
+    .cols = where(is.numeric), 
+    .fns = list(Media = mean,SD=sd,Mediana = median,MADM=madm,IQR = iqr), 
+    na.rm=T,
+    .names = "{.col}_{.fn}"
+  ))
+
+clean_Petal_Length_summ <- summary_clean %>% select(starts_with("Petal.Length"))
+print(clean_Petal_Length_summ)
 ```
 
+```{r}
+
+summary_dirty <- dirty_iris %>%
+  select(-Species)%>%
+  summarise(across(
+    .cols = where(is.numeric), 
+    .fns = list(Media = mean,SD=sd,Mediana = median,MADM=madm,IQR = iqr),
+    na.rm=T,
+    .names = "{.col}_{.fn}"
+  ))
+
+dirty_Petal_Length_summ <- summary_clean %>% select(starts_with("Petal.Length"))
+print(dirty_Petal_Length_summ)
+
+```
+Observamos que respecto a la variable `Petal_Length` , el resumen de estadísticos no cambia, ya que para poder usarlo sobre el conjunto de datos sucio hemos tenido que ignorar los NA's.
 
 ## Ejercicio 5: Métodos de detección de outliers
 
@@ -163,7 +199,9 @@ Escribe una función que detecte los outliers de un vector $x$ para cada uno de 
 
 ```{r , include = FALSE}
 # Regla 3 sigma
-
+out_3sigma <- function(x,...){
+  
+}
 
 # Identificador Hampel
 
