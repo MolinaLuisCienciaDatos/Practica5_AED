@@ -203,6 +203,7 @@ reglasigma <- function(x,...){
   SD <- sd(x,...)
   mu = mean(x,...)
   out <- x[ abs(x-mu) > 3*SD]
+  out <- !is.na(x)
   return(out)
 }
 
@@ -211,6 +212,7 @@ reglahampel <- function(x,...){
   MADM <- madm(x,...)
   med <- median(x,...)
   out <- x[ abs(x-med) > 3*MADM]
+  out <- !is.na(x)
   return(out)
 }
 
@@ -220,6 +222,7 @@ reglaboxplot <- function(x,...){
     q1 <-quantile(x,0.25,...)
       q3<-quantile(x,0.75,...)
   out <- x[ x < q1-1.5*IQR | x>q3+1.5*IQR ]
+  out <- !is.na(x)
   return(out)
 }
 
@@ -228,6 +231,7 @@ reglapercentiles <- function(x,...){
       q5 <-quantile(x,0.05,...)
       q95<-quantile(x,0.95,...)
   out <- x[ x < q5| x>q95 ]
+  out <- !is.na(x)
   return(out)
 }
 ```
@@ -240,7 +244,13 @@ Nota: podría extenderse la aplicación a todas las variables numéricas usando 
 
 ```{r Solucion ejercicio 6, include=TRUE, echo=TRUE, eval=TRUE, results=TRUE}
 
-
+outliers_Petal_Length <- dirty_iris %>%
+  mutate(across(Petal.Length,
+                .fns = list(reglasigma,reglahampel,reglaboxplot,reglapercentiles),
+                .names ="{.fn}",
+                na.rm=T)) %>%
+    select(Petal.Length,6,7,8,9) %>%
+  rename(Out_Sigma = 2,Out_Hampel =3,OutBoxPlot=4,OutPercentil = 5)
 
 ```
 
