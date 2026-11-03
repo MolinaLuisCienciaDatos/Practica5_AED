@@ -77,8 +77,14 @@ Inspecciona visualmente los valores del conjunto de datos (`View`) y ordena de m
 
 ```{r Solucion ejercicio 1, include=TRUE, echo=TRUE, eval=TRUE, results=TRUE}
 # Medidas con valores faltantes, longitudes negativas y cero
-
+View(dirty_iris)
 ```
+Observando visualmente el conjunto de datos `dirty_iris`, encuentro las siguientes inconsistencias:
+* Una instancia con valores `sepal.length` de 0,y `sepal_width` de NA, por lo que se intuye que el valor del 0 es un valor perdido y no un 0 realmente, ya que no tendría sentido una flor con el sépalode longitud 0.
+* Una instancia con un valor negativo de `sepal.width`, lo cual es contradictorio, pues se supone que es una longitud medida.
+* Una instancia con valor 0 en la variable `Petal.length`, por lo que se intuye que es un valor perdido por las mismas razones que en los casos anteriores.
+* Una instancia con valor `Inf`(infinito) en la variable `Ptal.Width`, lo que vuelve a ser una inconsistencia. 
+* Varias instancias con valores perdidos `NA` en distintas variables.
 
 ## Ejercicio 2: Valores especiales
 
